@@ -1,24 +1,20 @@
 # image-repository
 
+An image tagging application built using Electron and Vue.js. This app allows you to choose a folder on your computer, and then add tags which describe the contents of the images in that folder. Then, you can easily add new images to your repository, and search through your images by their names and tags to find the ones you're looking for. Once you've found what you're looking for, just drag the image to wherever it needs to go!
+
 ## Project setup
 ```
 npm install
 ```
-
-### Compiles and hot-reloads for development
+### Run a demo
 ```
-npm run serve
+npm run demo
 ```
-
-### Compiles and minifies for production
+### Start the project in development mode
 ```
-npm run build
+npm run electron:serve
 ```
-
-### Lints and fixes files
+### Build a standalone application
 ```
-npm run lint
+npm run electron:build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -17,7 +17,6 @@ app.whenReady().then(() => {
 });
 
 async function createWindow() {
-  console.log(process.env.ELECTRON_NODE_INTEGRATION);
   // Create the browser window.
   const win = new BrowserWindow({
     width: 800,
