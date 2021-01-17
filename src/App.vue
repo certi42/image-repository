@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <search-pane class="search" @choosePath="choosePath" @chooseImage="chooseImage" ref="search"/>
+    <search-pane class="search" @choosePath="choosePath" @chooseImage="chooseImage" @addImages="addImages"/>
     <div id="image-container">
       <image-view :path="imagePath"/>
       <tag-view :tags="imageTags" v-if="imagePath"/>
@@ -64,6 +64,16 @@ export default {
         console.log("saving tags to", tagPath);
         fs.writeFileSync(tagPath, JSON.stringify(this.tags));
       }
+    },
+    addImages(paths) {
+      const newTags = paths.map((imageName) => {
+        return {
+          name: imageName,
+          tags: []
+        };
+      });
+      this.tags.push(...newTags);
+      setTags(this.tags);
     }
   },
   mounted() {

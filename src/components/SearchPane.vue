@@ -1,12 +1,13 @@
 <template>
   <div class="search-pane">
     <input type="text" v-model="searchTerm" placeholder="Search by name or tags">
-    <div id="image-listings">
+    <div id="image-listings" v-if="path">
       <p v-for="name in showImages" :key="name" class="image-line" 
         :class="{selected: selectedImage === name}" @click="selectImage(name)">{{ name }}</p>
+      <button class="button" id="add-image" @click="addImage()">Add Image</button>
     </div>
-    <div v-if="images.length === 0" style="display: flex;">
-      <button id="choose-folder" @click="chooseDir()">Choose Directory for Images</button>
+    <div v-else style="display: flex;">
+      <button class="button" id="choose-folder" @click="chooseDir()">Choose Directory for Images</button>
     </div>
   </div>
 </template>
@@ -15,6 +16,7 @@
 const remote = window.require('electron').remote;
 const dialog = remote.dialog;
 import fs from 'fs';
+import path from 'path';
 import { getType } from 'mime';
 import { setImages, search } from '@/search'
 
@@ -30,8 +32,9 @@ export default {
     }
   },
   methods: {
-    async chooseDir() {
+    chooseDir() {
       const path = dialog.showOpenDialogSync({properties: ['openDirectory']})[0];
+      this.path = path;
       const files = fs.readdirSync(path);
       this.images = files.filter(name => {
         const type = getType(name);
@@ -47,6 +50,25 @@ export default {
     selectImage(name) {
       this.selectedImage = name;
       this.$emit("chooseImage", name);
+    },
+    addImage() {
+      const paths = dialog.showOpenDialogSync({
+        filters: [{name: 'Image', extensions: ['png','jpg','jpeg','bpm','gif']}],
+        properties: ['openFile', 'multiSelections']
+      });
+      const imageNames = paths.filter(pname => {
+        return path.dirname(pname) !== this.path;
+      }).map(pname => {
+        const imgName = path.basename(pname);
+        fs.copyFileSync(pname, path.join(this.path, imgName));
+        return imgName;
+      });
+      imageNames.forEach(imgName => {
+        this.images.push(imgName);
+      });
+      setImages(this.images);
+      this.$emit("addImages", imageNames);
+      this.search();
     }
   },
   name: 'SearchPane',
@@ -90,7 +112,7 @@ input {
   background: #ccc;
 }
 
-#choose-folder {
+.button {
   padding: 6px 8px;
   background: white;
   border: 1px solid #555;
@@ -100,9 +122,7 @@ input {
   cursor: pointer;
 }
 
-#choose-folder:hover {
+.button:hover {
   background: #eee;
 }
-
-
 </style>
