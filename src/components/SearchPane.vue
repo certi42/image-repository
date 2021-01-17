@@ -16,6 +16,7 @@ const remote = window.require('electron').remote;
 const dialog = remote.dialog;
 import fs from 'fs';
 import { getType } from 'mime';
+import { setImages, search } from '@/search'
 
 
 export default {
@@ -31,20 +32,17 @@ export default {
   methods: {
     async chooseDir() {
       const path = dialog.showOpenDialogSync({properties: ['openDirectory']})[0];
-      this.$emit("choosePath", path);
       const files = fs.readdirSync(path);
       this.images = files.filter(name => {
         const type = getType(name);
         return type && type.includes("image");
       });
+      setImages(this.images);
+      this.$emit("choosePath", path);
       this.search();
     },
     search() {
-      const lowerSearchTerm = this.searchTerm.toLowerCase();
-      this.showImages = this.images.filter(name => {
-        const lowerName = name.toLowerCase();
-        return lowerName.includes(lowerSearchTerm);
-      });
+      this.showImages = search(this.searchTerm);
     },
     selectImage(name) {
       this.selectedImage = name;

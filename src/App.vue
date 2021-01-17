@@ -3,9 +3,8 @@
     <search-pane class="search" @choosePath="choosePath" @chooseImage="chooseImage" ref="search"/>
     <div id="image-container">
       <image-view :path="imagePath"/>
-      <tag-view :tags="imageTags"/>
+      <tag-view :tags="imageTags" v-if="imagePath"/>
     </div>
-    
   </div>
 </template>
 
@@ -16,7 +15,7 @@ import TagView from './components/TagView.vue'
 
 import fs from 'fs';
 import path from 'path';
-import { getType } from 'mime';
+import { getImages, setTags } from '@/search';
 
 export default {
   name: 'App',
@@ -36,17 +35,15 @@ export default {
       if(fs.existsSync(tagPath)) {
         this.tags = JSON.parse(fs.readFileSync(tagPath));
       } else {
-        const files = fs.readdirSync(path);
-        this.tags = files.filter(name => {
-          const type = getType(name);
-          return type && type.includes("image");
-        }).map((imageName) => {
+        this.tags = getImages().map((imageName) => {
           return {
             name: imageName,
             tags: []
           };
         });
       }
+
+      setTags(this.tags);
 
       this.path = path;
       if(this.path && this.image) {
@@ -101,5 +98,6 @@ export default {
   flex-direction: column;
   flex-grow: 1;
   width: 80%;
+  overflow: scroll;
 }
 </style>
