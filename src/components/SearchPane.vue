@@ -12,13 +12,9 @@
 </template>
 
 <script>
-var remote = window.require('electron').remote;
-var fs = remote.require('fs');
-var dialog = remote.dialog;
-// import fs from 'fs';
-// import { dialog } from 'electron'
-
-
+const remote = window.require('electron').remote;
+const dialog = remote.dialog;
+import fs from 'fs';
 import { getType } from 'mime';
 
 

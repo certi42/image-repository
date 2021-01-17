@@ -26,16 +26,16 @@ export default {
 #image-view {
   padding: 30px;
   flex-grow: 1;
-  width: 80%;
+  height: 70%;
 }
 
 #selected-image {
   display: block;
   max-width: 100%;
   height: auto;
-  max-height: 80%;
+  max-height: 100%;
   position: relative;
-  top: 40%;
+  top: 50%;
   transform: translateY(-50%);
   margin: 0 auto;
 }

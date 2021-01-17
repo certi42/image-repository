@@ -1,15 +1,22 @@
 <template>
-  
   <div id="app">
+    <search-pane class="search" @choosePath="choosePath" @chooseImage="chooseImage" ref="search"/>
+    <div id="image-container">
+      <image-view :path="imagePath"/>
+      <tag-view :tags="imageTags"/>
+    </div>
     
-    <search-pane class="search" @choosePath="choosePath" @chooseImage="chooseImage" />
-    <image-view :path="imagePath"/>
   </div>
 </template>
 
 <script>
 import SearchPane from './components/SearchPane.vue'
 import ImageView from './components/ImageView.vue'
+import TagView from './components/TagView.vue'
+
+import fs from 'fs';
+import path from 'path';
+import { getType } from 'mime';
 
 export default {
   name: 'App',
@@ -17,11 +24,30 @@ export default {
     return {
       image: "",
       path: "",
-      imagePath: ""
+      imagePath: "",
+      imageTags: [],
+      tags: [],
     }
   },
   methods: {
     choosePath(path) {
+      this.saveTags();
+      const tagPath = path + "/.tags.json";
+      if(fs.existsSync(tagPath)) {
+        this.tags = JSON.parse(fs.readFileSync(tagPath));
+      } else {
+        const files = fs.readdirSync(path);
+        this.tags = files.filter(name => {
+          const type = getType(name);
+          return type && type.includes("image");
+        }).map((imageName) => {
+          return {
+            name: imageName,
+            tags: []
+          };
+        });
+      }
+
       this.path = path;
       if(this.path && this.image) {
         this.imagePath = this.path + "/" + this.image;
@@ -31,11 +57,23 @@ export default {
       this.image = img;
       if(this.path && this.image) {
         this.imagePath = this.path + "/" + this.image;
+        this.imageTags = this.tags.find(tag => tag.name == img).tags;
+      }
+    },
+    saveTags() {
+      if(this.path) {
+        // save tags
+        const tagPath = path.join(this.path, ".tags.json");
+        console.log("saving tags to", tagPath);
+        fs.writeFileSync(tagPath, JSON.stringify(this.tags));
       }
     }
   },
+  mounted() {
+    window.addEventListener('beforeunload', this.saveTags);
+  },
   components: {
-    SearchPane, ImageView
+    SearchPane, ImageView, TagView
   }
 }
 </script>
@@ -55,5 +93,13 @@ export default {
   display: flex;
   flex-direction: column;
   background-color: white;
+}
+
+#image-container {
+  height: calc(100vh - 16px);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 80%;
 }
 </style>
